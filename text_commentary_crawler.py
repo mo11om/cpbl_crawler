@@ -8,7 +8,7 @@ import time
 
 # 設定 WebDriver
 driver = webdriver.Chrome()  
-driver.get("https://www.cpbl.com.tw/box/live?gameSno=5&year=2024&kindCode=C")  # 初始頁面網址
+driver.get("https://www.cpbl.com.tw/box/live?gameSno=287&year=2023&kindCode=A")  # 初始頁面網址
 
 # 用於儲存所有比賽的資料
 data = [] 
@@ -17,11 +17,12 @@ data = []
 WebDriverWait(driver, 10).until(
     EC.presence_of_element_located((By.CLASS_NAME, "date"))
 )
-# 抓取所有比賽的 li 元素，因為同一天可能有超過一場的比賽
-li_elements = driver.find_elements(By.CSS_SELECTOR, "div.game_list ul li a")
-num_games = len(li_elements)  
 
 while(True): 
+    # 抓取所有比賽的 li 元素，因為同一天可能有超過一場的比賽
+    li_elements = driver.find_elements(By.CSS_SELECTOR, "div.game_list ul li a")
+    num_games = len(li_elements)  
+
     # 反向遍歷每場比賽
     for game_index in range(num_games - 1, -1, -1):
         try:
@@ -146,8 +147,7 @@ while(True):
                         next_button = driver.find_elements(By.CSS_SELECTOR, ".tab_cont.all_plays.active .tabs li a")[inning]
                         # driver.execute_script("arguments[0].scrollIntoView(true);", next_button)
                         driver.execute_script("arguments[0].click();", next_button)
-                    else:
-                        print(f"Error: inning index {inning + 1} is out of range. Total li elements: {len(li_elements)}")
+
                 except Exception as e:
                     print(f"沒有下半局")
                     break
