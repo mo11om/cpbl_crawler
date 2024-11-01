@@ -8,37 +8,49 @@ import time
 
 # 設定 WebDriver
 driver = webdriver.Chrome()  
-driver.get("https://www.cpbl.com.tw/box/live?gameSno=287&year=2023&kindCode=A")  # 初始頁面網址
+driver.get("https://www.cpbl.com.tw/box/live?gameSno=214&year=2024&kindCode=A")  # 初始頁面網址
 
 # 用於儲存所有比賽的資料
-data = [] 
+data = []
+total_num_games = 498
+now_num_games = 1
 
 # 等待頁面載入並抓取各標示的內容
 WebDriverWait(driver, 10).until(
     EC.presence_of_element_located((By.CLASS_NAME, "date"))
 )
 
-while(True): 
+while now_num_games < total_num_games + 1: 
     # 抓取所有比賽的 li 元素，因為同一天可能有超過一場的比賽
     li_elements = driver.find_elements(By.CSS_SELECTOR, "div.game_list ul li a")
-    num_games = len(li_elements)  
+    num_games = len(li_elements)
+
+    # 抓取所有比賽的狀態
+    game_status = driver.find_elements(By.CSS_SELECTOR, "div.game_list .Tags span")
 
     # 反向遍歷每場比賽
     for game_index in range(num_games - 1, -1, -1):
-        try:
-            li_elements = driver.find_elements(By.CSS_SELECTOR, "div.game_list ul li a")
+        print("now_num_games", now_num_games)
+        try: 
+            game_tags = driver.find_elements(By.CSS_SELECTOR, ".Tags .tag.game_status span, .Tags .tag.game_note span")
+            current_status = game_tags[game_index].text.strip() 
 
+            if "延賽" in current_status: 
+                continue
+
+            li_elements = driver.find_elements(By.CSS_SELECTOR, "div.game_list ul li a")
+            game_element = li_elements[game_index]
             # 點選對應的比賽
-            li_elements[game_index].click()  
-            time.sleep(2)  
+            game_element.click()  
+            time.sleep(2)  # 等待頁面加載
             
+            # 重新獲取需要的元素
             date = driver.find_element(By.CLASS_NAME, "date").text.strip() 
             day = driver.find_element(By.CSS_SELECTOR, ".date_selected .day").text.strip()  
-            
+
             # 主客隊最終比分
-            score_away = driver.find_element(By.CSS_SELECTOR, ".game_list .num.away").text.strip() 
-            score_home = driver.find_element(By.CSS_SELECTOR, ".game_list .num.home").text.strip()
-            
+            score_away = driver.find_element(By.CSS_SELECTOR, ".item.ScoreBoard .team.away .score").text.strip() 
+            score_home = driver.find_element(By.CSS_SELECTOR, ".item.ScoreBoard .team.home .score").text.strip()
             # 主客隊名稱
             team_element = driver.find_element(By.CSS_SELECTOR, ".team.away a")  
             team_away_name = team_element.get_attribute("title").strip()  
@@ -180,6 +192,7 @@ while(True):
             }
             data.append(game_data)
             print(f"已擷取比賽資料: {game_data}")
+            now_num_games += 1
 
         except Exception as e:
             print(f"錯誤: {e}")
