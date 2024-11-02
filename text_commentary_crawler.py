@@ -5,6 +5,8 @@ from selenium.webdriver.support import expected_conditions as EC
 from bs4 import BeautifulSoup
 import json
 import time
+#import crawler news func
+from news import new_crawler_main
 
 # 設定 WebDriver
 driver = webdriver.Chrome()  
@@ -48,6 +50,14 @@ while now_num_games < total_num_games + 1:
             date = driver.find_element(By.CLASS_NAME, "date").text.strip() 
             day = driver.find_element(By.CSS_SELECTOR, ".date_selected .day").text.strip()  
 
+             # 抓new
+            news_data = {
+                    "date": None,
+                    "title": None,
+                    "content": None
+                }
+           
+            
             # 主客隊最終比分
             score_away = driver.find_element(By.CSS_SELECTOR, ".item.ScoreBoard .team.away .score").text.strip() 
             score_home = driver.find_element(By.CSS_SELECTOR, ".item.ScoreBoard .team.home .score").text.strip()
@@ -164,6 +174,18 @@ while now_num_games < total_num_games + 1:
                     print(f"沒有下半局")
                     break
 
+            try :
+                # 點擊連結，進入新頁面
+                link_element = driver.find_element(By.LINK_TEXT, "賽事新聞")
+                link_uri = link_element.get_attribute("href")
+                print("news_link",link_element)
+                news_data=new_crawler_main(link_uri)
+                
+            except :
+                print("Link '賽事新聞' not found.")
+               
+                print("news not exist")
+        
             # 儲存本場比賽資料
             game_data = {
                 "date": date,
@@ -188,7 +210,8 @@ while now_num_games < total_num_games + 1:
                     "全壘打": home_runs,
                     }
                 },
-                "all_plays": all_plays
+                "all_plays": all_plays,
+               "news":news_data
             }
             data.append(game_data)
             print(f"已擷取比賽資料: {game_data}")
