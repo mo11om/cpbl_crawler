@@ -2,6 +2,8 @@ import time
 from bs4 import BeautifulSoup
 from selenium import webdriver
 from selenium.webdriver.common.by import By
+from selenium import webdriver
+# 設定 WebDriver
 
 def crawler_news_with_driver(driver):
 
@@ -46,6 +48,7 @@ def crawler_news_with_driver(driver):
         }
         return data_dict
 def new_crawler_main(news_uri="https://www.cpbl.com.tw/box/news?year=2024&kindCode=A&gameSno=266"):
+    
     driver = webdriver.Chrome()
     driver.get(news_uri)
     news_data=crawler_news_with_driver(driver)
