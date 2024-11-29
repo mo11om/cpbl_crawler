@@ -50,27 +50,8 @@ def tokenize(text):
 
   return tokens
 
-def tokenize_of(text):
-  """Tokenizes a given text into words.
 
-  Args:
-    text: The text to tokenize.
-
-  Returns:
-    A list of tokens (words).
-  """
-
-  # Split the text based on whitespace and punctuation
-  tokens = text.split("，")
-
-  # Remove punctuation from tokens
-  tokens = [token.strip(string.punctuation) for token in tokens]
-
-  # Remove empty tokens
-  tokens = [token for token in tokens if token]
-  
-  return tokens
-def read_json(file_path = 'data.json'):
+def main(file_path = 'data.json'):
   
 
     # Path to the JSON file
@@ -83,18 +64,11 @@ def read_json(file_path = 'data.json'):
     for data in data_list:
         news=data['news']
         if news['content'] != None:
-            preprocess_hit(news=news)
+            processed_result=preprocess_hit(news=news)
+            news['processed_result'] = processed_result
+    with open("new"+file_path, 'w', encoding='utf-8') as file:
+      json.dump(data_list, file, indent=4, ensure_ascii=False)
 
-        # # Print the data to verify 
-        # pretty_data = json.dumps(data, indent=4, ensure_ascii=False) 
-        # print(pretty_data)
-        # # Access specific fields
-        # date = data['date']
-        # day = data['day']
-        # score_away = data['score_away']
-        # score_home = data['score_home']
-        # team_away_name = data['team_away_name']
-        # team_home_name = data['team_home_name']
     
 def preprocess_hit(news=test_json):
     content =news["content"]
@@ -107,10 +81,10 @@ def preprocess_hit(news=test_json):
     # for sentence in result:
     #     print(sentence)
     print(result)
-  
+    return result
     
 
 
 
 if __name__ == '__main__':
-    read_json("2324例行賽資料.json")
+    main("2324例行賽資料.json")
