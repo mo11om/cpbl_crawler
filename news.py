@@ -7,7 +7,7 @@ from selenium import webdriver
 
 def crawler_news_with_driver(driver):
 
-        time.sleep(1)
+        time.sleep(0.5)
         # 在新頁面進行一些操作
         # 定位包含標題的元素
         title_element = driver.find_element(By.CSS_SELECTOR, ".articleTitle span")
@@ -47,9 +47,13 @@ def crawler_news_with_driver(driver):
             "content": all_text
         }
         return data_dict
+
+
+
+
 def new_crawler_main(news_uri="https://www.cpbl.com.tw/box/news?year=2024&kindCode=A&gameSno=266"):
     
-    driver = webdriver.Chrome()
+    driver = webdriver.Firefox()
     driver.get(news_uri)
     news_data=crawler_news_with_driver(driver)
     #print(news_data)
