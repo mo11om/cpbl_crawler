@@ -94,8 +94,7 @@ def crawler_main(game_data:GameData):
         # Print the href links 
     for href in hrefs:
        news=new_crawler_main(uri+href)
-       generate_score_json(news["content"])
-
+        
        print (news)
     driver.quit()
 
@@ -127,9 +126,11 @@ def crawler_page_main(begin_date:str, end_date:str):
 
     submit_button.click()
     
-    time.sleep(0.5) 
+    time.sleep(3) 
     # Get the page source and parse it with BeautifulSoup 
     news_data_list=[]
+    title_list=[]
+    total_href=[]
     while True:
         soup = BeautifulSoup(driver.page_source, 'html.parser') # Find all the div elements with the class 'NewsList' 
         news_list = soup.find_all('div', class_='NewsList') # Extract all href links from the 'a' tags within the 'NewsList'
@@ -137,31 +138,134 @@ def crawler_page_main(begin_date:str, end_date:str):
         for div in soup.find_all('div', class_='title'): 
             a_tag = div.find('a') 
             if a_tag and 'href' in a_tag.attrs: 
-                hrefs.append(a_tag['href'])  
+                hrefs.append(a_tag['href']) 
+                total_href.append(a_tag['href']) 
+                title_list.append(a_tag.text)
+        
         # for news in news_list: 
         #     links = news.find_all('a', href=True) 
         #     for link in links: hrefs.append(link['href'])
         #     # Print the href links 
-        for href in hrefs:
-            news_data=new_crawler_main(uri+href)
+        # for href in hrefs:
+        #     print(href)
+            # news_data=new_crawler_main(uri+href)
             
-            news_data_list.append(news_data)
-            # generate_score_json(news["content"])
+            # news_data_list.append(news_data)
+            # # generate_score_json(news["content"])
 
             # print (news)
 # Attempt to find the 'next' button and click it 
         try: 
             next_button = driver.find_element(By.CLASS_NAME, 'next') 
             next_button.click() 
-            time.sleep(0.5) # Adjust the sleep time as necessary 
+            time.sleep(0.8) # Adjust the sleep time as necessary 
         except NoSuchElementException: 
                 print("No more 'next' button found.") 
                 break
     driver.quit() 
-    print("news content",news_data_list)
-    write_file(news_data_list)    
-               
+    print(title_list)
+    print(len(title_list))
+    print(total_href)
+    print(len(total_href))
+    write_file(title_list,"title.json")
+    write_file(total_href,"href.json")
+    print(len(total_href))
+    
+    # print("news content",news_data_list)
+    # write_file(news_data_list)    
 
+
+# def crawler_one_day(date:str):
+#         # 設定 WebDriver
+#     driver = webdriver.Firefox()
+
+#     driver.get(uri+"/xmdoc")
+#     # Locate the input field by its ID 
+#     date_input = driver.find_element(By.NAME, "BeginReleaseDate") 
+#     # # Input the date 
+#     date_input.send_keys(date) # Optionally, simulate pressing Enter if necessary date_input.send_keys(Keys.RETURN) # Close the WebDriver after a short delay import time time.sleep(5) driver.quit()
+#     date_input = driver.find_element(By.NAME, "EndReleaseDate") 
+#     # # Input the date 
+#     date_input.send_keys(date) # Optionally, simulate pressing Enter if necessary date_input.send_keys(Keys.RETURN) # Close the WebDriver after a short delay import time time.sleep(5) driver.quit()
+
+#     # Locate the submit button by its attributes and click it
+#     submit_button = driver.find_element(By.XPATH, "//input[@value='查詢']")
+
+#     submit_button.click()
+    
+#     WebDriverWait(driver, 3).until(
+#     EC.presence_of_element_located((By.CLASS_NAME, "NewsList"))
+#         ) 
+#     # Get the page source and parse it with BeautifulSoup 
+#     news_data_list=[]
+  
+
+#     soup = BeautifulSoup(driver.page_source, 'html.parser') # Find all the div elements with the class 'NewsList' 
+    
+#     hrefs = [] 
+#     for div in soup.find_all('div', class_='title'): 
+#         a_tag = div.find('a') 
+#         if a_tag and 'href' in a_tag.attrs: 
+#             hrefs.append(a_tag['href']) 
+#     # print(hrefs)
+#     if hrefs:
+#         news_data=crawler_of_herf(hrefs)
+#         if news_data:
+#             news_data_list.append(news_data)
+#     driver.quit() 
+#     return news_data_list
+   
+   
+    
+#     # print("news content",news_data_list)
+#     # write_file(news_data_list)    
+
+def extract_titles_as_keys(data):
+  """Extracts titles from the JSON data and creates a new dictionary.
+
+  Args:
+    data: The JSON data as a Python object.
+
+  Returns:
+    A dictionary where titles are keys and contents are values.
+  """
+
+  result = {}
+  for item in data:
+    result[item['title']] = item
+  return result
+
+
+def read_urls_from_json(filepath):
+    """Reads URLs from a JSON file.
+
+    Args:
+        filepath: Path to the JSON file.
+
+    Returns:
+        A list of URLs.
+    """
+
+    with open(filepath, 'r') as f:
+        data = json.load(f)
+        return data
+ 
+def  crawler_of_herf(hrefs ):
+    
+    news_data_list=[]
+    for href in hrefs:
+        news_data=new_crawler_main(uri+href)
+            
+        news_data_list.append(news_data)
+    return news_data_list     
+def clean_dup(file_path):
+    data=read_urls_from_json(filepath=file_path)
+    title_dict=extract_titles_as_keys(data)
+    ### get rid of duplicate news
+    news_list=list(title_dict.values())
+    return news_list
+    
+    
 if __name__ == '__main__':
     #read_json("data.json")
     # game_data = GameData( 
@@ -171,4 +275,11 @@ if __name__ == '__main__':
     #     team_away_name="富邦", 
     #     team_home_name="統一" ) 
     # crawler_main(game_data)
-    crawler_page_main("2018-03-24","2018-10-14")#2019/10/05
+    crawler_page_main("2022-04-03","2022-10-26")#2018/03/24 - 2018/10/14
+    
+    hrefs=read_urls_from_json("href.json")
+    news_data_list=crawler_of_herf(hrefs)
+    write_file(news_data_list)   
+    news_list=clean_dup("news.json")
+    write_file(news_list,"news_v4.json")
+    
