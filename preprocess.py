@@ -37,10 +37,10 @@ def tokenize(text):
   tokens = text.split("，")
 
   # Further split tokens based on secondary delimiter '。'
-  tokens = [token.split("。") for token in tokens]
+#   tokens = [token.split("。") for token in tokens]
 
   # Flatten the list of lists into a single list of tokens
-  tokens = [token for sublist in tokens for token in sublist]
+#   tokens = [token for sublist in tokens for token in sublist]
 
   # Remove punctuation from tokens
   tokens = [token.strip(string.punctuation) for token in tokens]
@@ -69,7 +69,25 @@ def main(file_path = 'data.json'):
     with open("new"+file_path, 'w', encoding='utf-8') as file:
       json.dump(data_list, file, indent=4, ensure_ascii=False)
 
-    
+def concatenate_strings(string_list):
+    """Concatenates strings in a list with commas, excluding those ending with a period.
+
+    Args:
+        string_list: A list of strings.
+
+    Returns:
+        A string with concatenated elements, separated by commas, except for the last element if it ends with a period.
+    """
+
+    result = ""
+    for i, string in enumerate(string_list):
+        if i < len(string_list) - 1 or not string.endswith("。"):
+            result += string + ","
+        else:
+            result += string
+
+    return result
+  
 def preprocess_hit(news=test_json):
     content =news["content"]
     sentences=tokenize(content)
@@ -80,11 +98,14 @@ def preprocess_hit(news=test_json):
     # # 印出結果
     # for sentence in result:
     #     print(sentence)
+    result= concatenate_strings(result)
     print(result)
+
     return result
     
 
 
 
 if __name__ == '__main__':
-    main("2324例行賽資料.json")
+    main("例行賽資料_18_24.json")
+    #preprocess_hit()
