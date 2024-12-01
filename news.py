@@ -3,11 +3,17 @@ from bs4 import BeautifulSoup
 from selenium import webdriver
 from selenium.webdriver.common.by import By
 from selenium import webdriver
+from selenium.webdriver.support.ui import WebDriverWait
+from selenium.webdriver.support import expected_conditions as EC
+
 # 設定 WebDriver
 
 def crawler_news_with_driver(driver):
+        WebDriverWait(driver, 10).until(
+            EC.presence_of_element_located((By.CLASS_NAME, "date"))
+        )
 
-        time.sleep(0.5)
+        # time.sleep(2)
         # 在新頁面進行一些操作
         # 定位包含標題的元素
         title_element = driver.find_element(By.CSS_SELECTOR, ".articleTitle span")
@@ -61,4 +67,5 @@ def new_crawler_main(news_uri="https://www.cpbl.com.tw/box/news?year=2024&kindCo
     return news_data
 
 if __name__ == '__main__':
-    new_crawler_main()
+    uri="https://www.cpbl.com.tw"+ "/xmdoc/cont?bdate=2019-03-23&edate=2019-10-05&sid=0L132506962281105048"
+    new_crawler_main(uri)
